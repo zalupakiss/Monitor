@@ -18,137 +18,144 @@ jobs:
 
       - name: Generate Clean Source Files
         run: |
-          mkdir -p app/src/main/res/xml
-          mkdir -p app/src/main/java/com/example/screenoffauto
+          python3 -c '
+          import os, textwrap
 
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://android.com">
-              <uses-feature android:name="android.software.leanback" android:required="false" />
-              <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-              <application
-                  android:allowBackup="false"
-                  android:label="Экран Выкл"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
-                  <activity android:name=".MainActivity" android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                          <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-                  <service
-                      android:name=".ScreenOffService"
-                      android:exported="true"
-                      android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-                      <intent-filter>
-                          <action android:name="android.accessibilityservice.AccessibilityService" />
-                      </intent-filter>
-                      <meta-data
-                          android:name="android.accessibilityservice"
-                          android:resource="@xml/accessibility_service_config" />
-                  </service>
-              </application>
-          </manifest>
-          EOF
+          os.makedirs("app/src/main/res/xml", exist_ok=True)
+          os.makedirs("app/src/main/java/com/example/screenoffauto", exist_ok=True)
 
-          cat << 'EOF' > app/src/main/res/xml/accessibility_service_config.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <accessibility-service xmlns:android="http://android.com"
-              android:accessibilityEventTypes="typeWindowStateChanged"
-              android:accessibilityFeedbackType="feedbackGeneric"
-              android:canPerformGestures="true"
-              android:canRetrieveWindowContent="true"
-              android:description="Автоматически нажимает пункт Питание без изображения"
-              android:notificationTimeout="100" />
-          EOF
+          files = {
+              "app/src/main/AndroidManifest.xml": """\
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <manifest xmlns:android="http://android.com">
+                      <uses-feature android:name="android.software.leanback" android:required="false" />
+                      <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+                      <application
+                          android:allowBackup="false"
+                          android:label="Экран Выкл"
+                          android:theme="@android:style/Theme.Translucent.NoTitleBar">
+                          <activity android:name=".MainActivity" android:exported="true">
+                              <intent-filter>
+                                  <action android:name="android.intent.action.MAIN" />
+                                  <category android:name="android.intent.category.LAUNCHER" />
+                                  <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                              </intent-filter>
+                          </activity>
+                          <service
+                              android:name=".ScreenOffService"
+                              android:exported="true"
+                              android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+                              <intent-filter>
+                                  <action android:name="android.accessibilityservice.AccessibilityService" />
+                              </intent-filter>
+                              <meta-data
+                                  android:name="android.accessibilityservice"
+                                  android:resource="@xml/accessibility_service_config" />
+                          </service>
+                      </application>
+                  </manifest>
+              """,
+              "app/src/main/res/xml/accessibility_service_config.xml": """\
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <accessibility-service xmlns:android="http://android.com"
+                      android:accessibilityEventTypes="typeWindowStateChanged"
+                      android:accessibilityFeedbackType="feedbackGeneric"
+                      android:canPerformGestures="true"
+                      android:canRetrieveWindowContent="true"
+                      android:description="Автоматически нажимает пункт Питание без изображения"
+                      android:notificationTimeout="100" />
+              """,
+              "app/src/main/java/com/example/screenoffauto/MainActivity.kt": """\
+                  package com.example.screenoffauto
 
-          cat << 'EOF' > app/src/main/java/com/example/screenoffauto/MainActivity.kt
-          package com.example.screenoffauto
+                  import android.app.Activity
+                  import android.content.Intent
+                  import android.os.Bundle
+                  import android.provider.Settings
+                  import android.widget.Toast
 
-          import android.app.Activity
-          import android.content.Intent
-          import android.os.Bundle
-          import android.provider.Settings
-          import android.widget.Toast
-
-          class MainActivity : Activity() {
-              override fun onCreate(savedInstanceState: Bundle?) {
-                  super.onCreate(savedInstanceState)
-                  val service = ScreenOffService.instance
-                  if (service == null) {
-                      Toast.makeText(this, "Включите 'Экран Выкл' в Специальных возможностях", Toast.LENGTH_LONG).show()
-                      try {
-                          startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                      } catch (e: Exception) {
-                          startActivity(Intent(Settings.ACTION_SETTINGS))
+                  class MainActivity : Activity() {
+                      override fun onCreate(savedInstanceState: Bundle?) {
+                          super.onCreate(savedInstanceState)
+                          val service = ScreenOffService.instance
+                          if (service == null) {
+                              Toast.makeText(this, "Включите Экран Выкл в Специальных возможностях", Toast.LENGTH_LONG).show()
+                              try {
+                                  startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                              } catch (e: Exception) {
+                                  startActivity(Intent(Settings.ACTION_SETTINGS))
+                              }
+                          } else {
+                              startActivity(Intent(Settings.ACTION_SETTINGS).apply {
+                                  addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                              })
+                              service.runMacro()
+                          }
+                          finish()
                       }
-                  } else {
-                      startActivity(Intent(Settings.ACTION_SETTINGS).apply {
-                          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                      })
-                      service.runMacro()
                   }
-                  finish()
-              }
-          }
-          EOF
+              """,
+              "app/src/main/java/com/example/screenoffauto/ScreenOffService.kt": """\
+                  package com.example.screenoffauto
 
-          cat << 'EOF' > app/src/main/java/com/example/screenoffauto/ScreenOffService.kt
-          package com.example.screenoffauto
+                  import android.accessibilityservice.AccessibilityService
+                  import android.os.Handler
+                  import android.os.Looper
+                  import android.view.View
+                  import android.view.accessibility.AccessibilityEvent
+                  import android.view.accessibility.AccessibilityNodeInfo
 
-          import android.accessibilityservice.AccessibilityService
-          import android.os.Handler
-          import android.os.Looper
-          import android.view.View
-          import android.view.accessibility.AccessibilityEvent
-          import android.view.accessibility.AccessibilityNodeInfo
+                  class ScreenOffService : AccessibilityService() {
+                      companion object {
+                          var instance: ScreenOffService? = null
+                      }
+                      private val handler = Handler(Looper.getMainLooper())
 
-          class ScreenOffService : AccessibilityService() {
-              companion object {
-                  var instance: ScreenOffService? = null
-              }
-              private val handler = Handler(Looper.getMainLooper())
+                      override fun onServiceConnected() {
+                          super.onServiceConnected()
+                          instance = this
+                      }
 
-              override fun onServiceConnected() {
-                  super.onServiceConnected()
-                  instance = this
-              }
+                      override fun onUnbind(intent: android.content.Intent?): Boolean {
+                          instance = null
+                          return super.onUnbind(intent)
+                      }
 
-              override fun onUnbind(intent: android.content.Intent?): Boolean {
-                  instance = null
-                  return super.onUnbind(intent)
-              }
+                      override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+                      override fun onInterrupt() {}
 
-              override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
-              override fun onInterrupt() {}
-
-              fun runMacro() {
-                  handler.postDelayed({
-                      moveDownAndClick(4)
-                      handler.postDelayed({
-                          moveDownAndClick(6)
+                      fun runMacro() {
                           handler.postDelayed({
-                              moveDownAndClick(1)
-                          }, 600)
-                      }, 600)
-                  }, 1200)
-              }
+                              moveDownAndClick(4)
+                              handler.postDelayed({
+                                  moveDownAndClick(6)
+                                  handler.postDelayed({
+                                      moveDownAndClick(1)
+                                  }, 600)
+                              }, 600)
+                          }, 1200)
+                      }
 
-              private fun moveDownAndClick(steps: Int) {
-                  val root = rootInActiveWindow ?: return
-                  var currentFocus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                  for (i in 0 until steps) {
-                      val next = currentFocus?.focusSearch(View.FOCUS_DOWN)
-                      if (next != null) {
-                          next.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
-                          currentFocus = next
+                      private fun moveDownAndClick(steps: Int) {
+                          val root = rootInActiveWindow ?: return
+                          var currentFocus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                          for (i in 0 until steps) {
+                              val next = currentFocus?.focusSearch(View.FOCUS_DOWN)
+                              if (next != null) {
+                                  next.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+                                  currentFocus = next
+                              }
+                          }
+                          currentFocus?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                       }
                   }
-                  currentFocus?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-              }
+              """
           }
-          EOF
+
+          for path, content in files.items():
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write(textwrap.dedent(content))
+          '
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
