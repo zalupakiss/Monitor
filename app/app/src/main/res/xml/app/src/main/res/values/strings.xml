@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Экран Выкл</string>
+    <string name="service_desc">Автоматически нажимает пункт Питание без изображения в настройках ТВ</string>
+</resources>
