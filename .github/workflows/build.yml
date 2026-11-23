@@ -22,50 +22,14 @@ jobs:
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/java/com/example/screenoffauto
 
-          cat << 'EOF' > app/src/main/res/values/strings.xml
-          <resources>
-              <string name="desc">ScreenOff Auto</string>
-          </resources>
-          EOF
+          echo "PHJlc291cmNlcz4KICAgIDxzdHJpbmcgbmFtZT0iZGVzYyI+U2NyZWVuT2ZmIEF1dG88L3N0cmluZz4KPC9yZXNvdXJjZXM+Cg==" | base64 -d > app/src/main/res/values/strings.xml
 
-          python3 -c '
-          import os
-          manifest = (
-              "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-              "<manifest xmlns:android=\"http://android.com" + "android\">\n"
-              "    <uses-permission android:name=\"android.permission.WRITE_SECURE_SETTINGS\" />\n"
-              "    <uses-feature android:name=\"android.software.leanback\" android:required=\"false\" />\n"
-              "    <uses-feature android:name=\"android.hardware.touchscreen\" android:required=\"false\" />\n"
-              "    <application android:allowBackup=\"false\" android:label=\"ScreenOff\" android:theme=\"@android:style/Theme.Translucent.NoTitleBar\">\n"
-              "        <activity android:name=\".MainActivity\" android:exported=\"true\">\n"
-              "            <intent-filter>\n"
-              "                <action android:name=\"android.intent.action.MAIN\" />\n"
-              "                <category android:name=\"android.intent.category.LAUNCHER\" />\n"
-              "                <category android:name=\"android.intent.category.LEANBACK_LAUNCHER\" />\n"
-              "            </intent-filter>\n"
-              "        </activity>\n"
-              "        <service android:name=\".ScreenOffService\" android:exported=\"true\" android:permission=\"android.permission.BIND_ACCESSIBILITY_SERVICE\">\n"
-              "            <intent-filter>\n"
-              "                <action android:name=\"android.accessibilityservice.AccessibilityService\" />\n"
-              "            </intent-filter>\n"
-              "            <meta-data android:name=\"android.accessibilityservice\" android:resource=\"@xml/accessibility_service_config\" />\n"
-              "        </service>\n"
-              "    </application>\n"
-              "</manifest>\n"
-          )
+          echo "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPG1hbmlmZXN0IHhtbG5zOmFuZHJvaWQ9Imh0dHA6Ly9zY2hlbWFzLmFuZHJvaWQuY29tL2Fway9yZXMvYW5kcm9pZCI+CiAgICA8dXNlcy1wZXJtaXNzaW9uIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5wZXJtaXNzaW9uLldSSVRFX1NFQ1VSRV9TRVRUSU5HUyIgLz4KICAgIDx1c2VzLWZlYXR1cmUgYW5kcm9pZDpuYW1lPSJhbmRyb2lkLnNvZnR3YXJlLmxlYW5iYWNrIiBhbmRyb2lkOnJlcXVpcmVkPSJmYWxzZSIgLz4KICAgIDx1c2VzLWZlYXR1cmUgYW5kcm9pZDpuYW1lPSJhbmRyb2lkLmhhcmR3YXJlLnRvdWNoc2NyZWVuIiBhbmRyb2lkOnJlcXVpcmVkPSJmYWxzZSIgLz4KICAgIDxhcHBsaWNhdGlvbiBhbmRyb2lkOmFsbG93QmFja3VwPSJmYWxzZSIgYW5kcm9pZDpsYWJlbD0iU2NyZWVuT2ZmIiBhbmRyb2lkOnRoZW1lPSJAYW5kcm9pZDpzdHlsZS9UaGVtZS5UcmFuc2x1Y2VudC5Ob1RpdGxlQmFyIj4KICAgICAgICA8YWN0aXZpdHkgYW5kcm9pZDpuYW1lPSIuTWFpbkFjdGl2aXR5IiBhbmRyb2lkOmV4cG9ydGVkPSJ0cnVlIj4KICAgICAgICAgICAgPGludGVudC1maWx0ZXI+CiAgICAgICAgICAgICAgICA8YWN0aW9uIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5pbnRlbnQuYWN0aW9uLk1BSU4iIC8+CiAgICAgICAgICAgICAgICA8Y2F0ZWdvcnkgYW5kcm9pZDpuYW1lPSJhbmRyb2lkLmludGVudC5jYXRlZ29yeS5MQVVOQ0hFUiIgLz4KICAgICAgICAgICAgICAgIDxjYXRlZ29yeSBhbmRyb2lkOm5hbWU9ImFuZHJvaWQuaW50ZW50LmNhdGVnb3J5LkxFQU5CQUNLX0xBVU5DSEVSIiAvPgogICAgICAgICAgICA8L2ludGVudC1maWx0ZXI+CiAgICAgICAgPC9hY3Rpdml0eT4KICAgICAgICA8c2VydmljZSBhbmRyb2lkOm5hbWU9Ii5TY3JlZW5PZmZTZXJ2aWNlIiBhbmRyb2lkOmV4cG9ydGVkPSJ0cnVlIiBhbmRyb2lkOnBlcm1pc3Npb249ImFuZHJvaWQucGVybWlzc2lvbi5CSU5EX0FDQ0VTU0lCSUxJVFlfU0VSVklDRSI+CiAgICAgICAgICAgIDxpbnRlbnQtZmlsdGVyPgogICAgICAgICAgICAgICAgPGFjdGlvbiBhbmRyb2lkOm5hbWU9ImFuZHJvaWQuYWNjZXNzaWJpbGl0eXNlcnZpY2UuQWNjZXNzaWJpbGl0eVNlcnZpY2UiIC8+CiAgICAgICAgICAgIDwvaW50ZW50LWZpbHRlcj4KICAgICAgICAgICAgPG1ldGEtZGF0YSBhbmRyb2lkOm5hbWU9ImFuZHJvaWQuYWNjZXNzaWJpbGl0eXNlcnZpY2UiIGFuZHJvaWQ6cmVzb3VyY2U9IkB4bWwvYWNjZXNzaWJpbGl0eV9zZXJ2aWNlX2NvbmZpZyIgLz4KICAgICAgICA8L3NlcnZpY2U+CiAgICA8L2FwcGxpY2F0aW9uPgo8L21hbmlmZXN0Pgo=" | base64 -d > app/src/main/AndroidManifest.xml
 
-          xml_cfg = (
-              "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-              "<accessibility-service xmlns:android=\"http://android.com" + "android\"\n"
-              "    android:accessibilityEventTypes=\"typeWindowStateChanged\"\n"
-              "    android:accessibilityFeedbackType=\"feedbackGeneric\"\n"
-              "    android:canPerformGestures=\"true\"\n"
-              "    android:canRetrieveWindowContent=\"true\"\n"
-              "    android:description=\"@string/desc\"\n"
-              "    android:notificationTimeout=\"100\" />\n"
-          )
+          echo "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPGFjY2Vzc2liaWxpdHktc2VydmljZSB4bWxuczphbmRyb2lkPSJodHRwOi8vc2NoZW1hcy5hbmRyb2lkLmNvbS9hcGsvcmVzL2FuZHJvaWQiCiAgICBhbmRyb2lkOmFjY2Vzc2liaWxpdHlFdmVudFR5cGVzPSJ0eXBlV2luZG93U3RhdGVDaGFuZ2VkIgogICAgYW5kcm9pZDphY2Nlc3NpYmlsaXR5RmVlZGJhY2tUeXBlPSJmZWVkYmFja0dlbmVyaWMiCiAgICBhbmRyb2lkOmNhblBlcmZvcm1HZXN0dXJlcz0idHJ1ZSIKICAgIGFuZHJvaWQ6Y2FuUmV0cmlldmVXaW5kb3dDb250ZW50PSJ0cnVlIgogICAgYW5kcm9pZDpkZXNjcmlwdGlvbj0iQHN0cmluZy9kZXNjIgogICAgYW5kcm9pZDpub3RpZmljYXRpb25UaW1lb3V0PSIxMDAiIC8+Cg==" | base64 -d > app/src/main/res/xml/accessibility_service_config.xml
 
-          main_kt = """package com.example.screenoffauto
+          cat << 'EOF' > app/src/main/java/com/example/screenoffauto/MainActivity.kt
+          package com.example.screenoffauto
 
           import android.app.Activity
           import android.content.ComponentName
@@ -89,14 +53,15 @@ jobs:
                           addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                       })
                   } catch (e: SecurityException) {
-                      Toast.makeText(this, "Выдайте WRITE_SECURE_SETTINGS в App Manager", Toast.LENGTH_LONG).show()
+                      Toast.makeText(this, "Grant WRITE_SECURE_SETTINGS in App Manager", Toast.LENGTH_LONG).show()
                   }
                   finish()
               }
           }
-          """
+          EOF
 
-          service_kt = """package com.example.screenoffauto
+          cat << 'EOF' > app/src/main/java/com/example/screenoffauto/ScreenOffService.kt
+          package com.example.screenoffauto
 
           import android.accessibilityservice.AccessibilityService
           import android.content.ComponentName
@@ -160,13 +125,7 @@ jobs:
                   currentFocus?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
               }
           }
-          """
-
-          with open("app/src/main/AndroidManifest.xml", "w") as f: f.write(manifest)
-          with open("app/src/main/res/xml/accessibility_service_config.xml", "w") as f: f.write(xml_cfg)
-          with open("app/src/main/java/com/example/screenoffauto/MainActivity.kt", "w") as f: f.write(main_kt)
-          with open("app/src/main/java/com/example/screenoffauto/ScreenOffService.kt", "w") as f: f.write(service_kt)
-          '
+          EOF
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
