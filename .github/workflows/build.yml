@@ -144,7 +144,7 @@ jobs:
                       val cleaned = current.split(":").filter { it.isNotEmpty() && it != myService }.joinToString(":")
                       Settings.Secure.putString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, cleaned)
                   } catch (e: Exception) {}
-                  disableSelf()
+                  super.disableSelf()
               }
 
               private fun moveDownAndClick(steps: Int) {
