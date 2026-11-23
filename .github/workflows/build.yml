@@ -96,11 +96,12 @@ jobs:
                               moveDownAndClick(1)
                               handler.postDelayed({
                                   stopAndCleanSelf()
-                              }, 300)
-                          }, 300)
-                      }, 300)
-                  }, 700)
+                              }, 450)
+                          }, 450)
+                      }, 450)
+                  }, 950)
               }
+
 
               private fun stopAndCleanSelf() {
                   try {
